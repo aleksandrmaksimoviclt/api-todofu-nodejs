@@ -1,9 +1,10 @@
 import http from 'http';
 import express from 'express';
 import mongoose from 'mongoose';
-
 import morgan from 'morgan';
 import config from './server/config/config';
+
+import routes from './server/routes'
 
 
 let app = express();
@@ -26,11 +27,15 @@ if (config.env === 'development') {
   mongoose.set('debug', true);
 }
 
+app.use('/api', routes);
+
+app.use(morgan('dev'));
+
+
 app.server.listen(process.env.PORT || config.port, () => {
   console.log(`API Server started and listening on port ${config.port} (${config.env})`);
 });
 
-app.use(morgan('dev'));
 
 
 export default app;
