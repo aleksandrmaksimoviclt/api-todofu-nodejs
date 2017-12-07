@@ -1,4 +1,4 @@
-node_modules/
-
-# Yarn Integrity file
-.yarn-integrity
+/dist
+/logs
+/node_modules
+.DS_Store
