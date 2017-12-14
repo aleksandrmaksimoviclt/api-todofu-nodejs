@@ -1,5 +1,6 @@
 import express from 'express';
 import authRoutes from './auth';
+import cardRoutes from './cards';
 import listRoutes from './lists';
 import userRoutes from './users';
 
@@ -12,6 +13,7 @@ router.get('/api-status', (req, res) =>
 );
 
 router.use('/auth', authRoutes);
+router.use('/card', cardRoutes);
 router.use('/list', listRoutes);
 router.use('/users', userRoutes);
 
