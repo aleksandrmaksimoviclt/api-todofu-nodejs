@@ -9,7 +9,7 @@
     "start": "node dist",
     "prestart": "npm run -s build",
     "lint": "eslint src",
-    "test": "NODE_ENV=test mocha ./src/server/tests/*.test.js --compilers js:babel-register --watch-extensions js"
+    "test": "NODE_ENV=test nodemon --exec \"mocha ./src/server/tests/*.test.js --require babel-register --recursive\""
   },
   "eslintConfig": {
     "extends": "eslint:recommended",
