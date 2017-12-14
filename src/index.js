@@ -1,12 +1,14 @@
-import http from 'http';
-import express from 'express';
 import bodyParser from 'body-parser';
+import config from './server/config/config';
+import cors from 'cors';
+import express from 'express';
+import http from 'http';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
-import config from './server/config/config';
 
 import routes from './server/routes'
 
+mongoose.Promise = global.Promise;
 
 let app = express();
 
@@ -30,6 +32,8 @@ if (config.env === 'development') {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(cors());
 
 app.use('/api', routes);
 
