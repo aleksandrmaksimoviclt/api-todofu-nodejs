@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
 
 export const CardSchema = new mongoose.Schema({
-  // list: {
-  //   type: Number,
-  //   ref: 'List'
-  // },
+  list: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'List'
+  },
   title: {
     type: String,
     required: true,
