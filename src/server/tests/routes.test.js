@@ -1,7 +1,7 @@
 import app from '../../index';
 // import config from '../config/config';
 import { clearDatabase } from '../helpers/clearDB';
-import chai, { expect } from 'chai';
+import { expect } from 'chai';
 import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 import request from 'supertest';
@@ -114,7 +114,7 @@ describe('## Tasks API Tests', () => {
 
   describe('### PUT /api/list/:listId', () => {
 
-    it('should get testlist', (done) => {
+    it('should update testlist', (done) => {
         request(app)
           .put(`/api/list/${list._id.toString()}`)
           .send({name: "i was changed"})
@@ -130,8 +130,7 @@ describe('## Tasks API Tests', () => {
 
     it('should delete newly created list', (done) => {
       list = new List({
-        name: "The Chronicles of Narnia",
-        cards: []
+        name: "The Chronicles of Narnia"
       });
 
       list.save((error, list) =>
