@@ -1,7 +1,8 @@
 import List from '../models/list';
 
 function load(req, res, next, id) {
-  List.findById(id)
+  List.findOne({ _id: id})
+    .populate('cards')
     .exec()
     .then((list) => {
       req.dbList = list;
