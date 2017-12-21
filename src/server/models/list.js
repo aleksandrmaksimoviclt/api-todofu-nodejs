@@ -1,7 +1,10 @@
 import mongoose from 'mongoose';
-// import { CardSchema } from './card';
 
 const ListSchema = new mongoose.Schema({
+  cards: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Card'
+  }],
   name : {
     type: String,
     required: true,
