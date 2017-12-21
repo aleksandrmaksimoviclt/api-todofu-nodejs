@@ -6,31 +6,42 @@ import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 import request from 'supertest';
 import sinon from 'sinon';
+import Card from '../models/card';
 import List from '../models/list';
 import User from '../models/user';
 
 mongoose.models = {};
 mongoose.modelSchemas = {};
 
-describe('## Tasks API Tests', () => {
+describe('## API Tests', () => {
 
-  let sandbox, list, user;
+  let sandbox, card, list, user;
 
   beforeEach((done) => {
     clearDatabase(() => {
       sandbox = sinon.sandbox.create();
 
-      List.create({
-        name: 'testlist'
-      })
+      List
+        .create({
+          name: 'testlist'
+        })
         .then((l) => {
           list = l;
+
+          Card.create({
+            title: 'Card #1',
+            list: list._id
+          }).then((c) => {
+            card = c;
+          });
+
         });
 
-      User.create({
-        username: 'testuser',
-        password: 'testuser'
-      })
+      User
+        .create({
+          username: 'testuser',
+          password: 'testuser'
+        })
         .then((u) => {
           user = u;
           done();
@@ -45,7 +56,7 @@ describe('## Tasks API Tests', () => {
   });
 
   describe('### GET /api/users', () => {
-    it('should list all available users', (done) => {
+    it('should GET all available users', (done) => {
         request(app)
           .get('/api/users')
           .expect(httpStatus.OK)
@@ -62,22 +73,26 @@ describe('## Tasks API Tests', () => {
   });
 
   describe('### GET /api/list', () => {
-    it('should list all available lists', (done) => {
+    it('should GET all available lists', (done) => {
         request(app)
           .get('/api/list')
           .expect(httpStatus.OK)
           .then(response => {
             expect(response.body[0]._id).to.exist;
             expect(response.body[0].name).to.exist;
+            expect(response.body[0].cards).to.exist;
             expect(response.body[0]._id).to.equal(list._id.toString());
             expect(response.body[0].name).to.equal(list.name.toString());
+            expect(response.body[0].cards[0]._id).to.equal(card._id.toString());
+            expect(response.body[0].cards[0].title).to.equal(card.title.toString());
+            expect(response.body[0].cards[0].list).to.equal(list._id.toString());
             done();
           });
     });
   });
 
   describe('### GET /api/list/:listId', () => {
-    it('should get testlist', (done) => {
+    it('should GET specific list by listId param', (done) => {
         request(app)
           .get(`/api/list/${list._id.toString()}`)
           .expect(httpStatus.OK)
@@ -114,12 +129,21 @@ describe('## Tasks API Tests', () => {
 
   describe('### PUT /api/list/:listId', () => {
 
-    it('should update testlist', (done) => {
+    it('should update lists name specified by listId param', (done) => {
+
+        const putList = {
+          name: "i was changed"
+        }
+
         request(app)
-          .put(`/api/list/${list._id.toString()}`)
-          .send({name: "i was changed"})
+          .put(`/api/list/${list._id}`)
+          .send(putList)
           .then(response => {
-            expect(response.status).to.equal(204);
+            expect(response.body._id).to.exist;
+            expect(response.body.name).to.exist;
+            expect(response.body.cards).to.exist;
+            expect(response.body._id.toString()).to.equal(list._id.toString());
+            expect(response.body.name.toString()).to.equal(putList.name.toString());
             done();
           });
     });
@@ -128,23 +152,115 @@ describe('## Tasks API Tests', () => {
 
   describe('### DELETE /api/list', () => {
 
-    it('should delete newly created list', (done) => {
-      list = new List({
+    it('should DELETE list specified by listId param', (done) => {
+
+      const list3 = new List({
         name: "The Chronicles of Narnia"
       });
 
-      list.save((error, list) =>
+      list3.save((error, list3) =>
         request(app)
-        .delete(`/api/list/${list._id.toString()}`)
+        .delete(`/api/list/${list3._id.toString()}`)
         .end((error, response) => {
           expect(response.status).to.equal(204);
           done();
         })
       );
 
-
     });
 
   });
+
+  describe('### GET /api/card', () => {
+    it('should GET all available cards', (done) => {
+      request(app)
+        .get('/api/card')
+        .expect(httpStatus.OK)
+        .then(response => {
+          expect(response.body[0]._id).to.exist;
+          expect(response.body[0].list).to.exist;
+          expect(response.body[0].title).to.exist;
+          expect(response.body[0]._id).to.equal(card._id.toString());
+          expect(response.body[0].list).to.equal(card.list.toString());
+          expect(response.body[0].title).to.equal(card.title.toString());
+          done();
+        });
+    });
+  });
+
+  describe('### GET /api/card/:cardId', () => {
+    it('should GET specific card by cardId', (done) => {
+        request(app)
+          .get(`/api/card/${card._id.toString()}`)
+          .expect(httpStatus.OK)
+          .then(response => {
+            expect(response.body._id).to.exist;
+            expect(response.body.list).to.exist;
+            expect(response.body.title).to.exist;
+            expect(response.body._id).to.equal(card._id.toString());
+            expect(response.body.list).to.equal(card.list.toString());
+            expect(response.body.title).to.equal(card.title.toString());
+            done();
+          });
+    });
+  });
+
+  describe('### POST /api/card', () => {
+
+    it('should create a new card', (done) => {
+        request(app)
+          .post('/api/card')
+          .send({
+            title: 'Card #2',
+            list: list._id
+          })
+          .expect(httpStatus.OK)
+          .then(response => {
+            expect(response.body._id).to.exist;
+            expect(response.body.title).to.exist;
+            expect(response.body.list).to.exist;
+            expect(response.body.title.toString()).to.equal('Card #2');
+            done();
+          });
+    });
+
+  });
+
+  describe('### PUT /api/card/:cardId', () => {
+
+    it('should update card', (done) => {
+      const putCard = {
+        title: "i was changed"
+      }
+      request(app)
+        .put(`/api/card/${card._id.toString()}`)
+        .send(putCard)
+        .then(response => {
+          expect(response.body._id).to.exist;
+          expect(response.body.title).to.exist;
+          expect(response.body.list).to.exist;
+          expect(response.body._id.toString()).to.equal(card._id.toString());
+          expect(response.body.title.toString()).to.equal(putCard.title);
+          expect(response.body.list.toString()).to.equal(card.list.toString());
+          done();
+        });
+    });
+
+  });
+
+  describe('### DELETE /api/card', () => {
+
+    it('should DELETE a card by cardID', (done) => {
+        request(app)
+        .delete(`/api/card/${card._id.toString()}`)
+        .end((error, response) => {
+          expect(response.status).to.equal(204);
+          done();
+        })
+    });
+
+  });
+
+
 
 });
