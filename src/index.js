@@ -37,7 +37,7 @@ app.use(cors());
 
 app.use('/api', routes);
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   res.status(err.status)
     .json({
       status: err.status,
