@@ -26,17 +26,15 @@ function create(req, res, next) {
 function update(req, res, next) {
   const card = req.dbCard;
   Object.assign(card, req.body);
-
   card.save()
-    .then((savedCard) => res.sendStatus(204),
-      (e) => next(e));
+    .then((savedCard) => {
+      res.json(savedCard);
+    },
+    (e) => next(e));
 }
 
 function list(req, res, next) {
-  const { limit = 50, skip = 0 } = req.query;
   Card.find()
-    .skip(skip)
-    .limit(limit)
     .exec()
     .then((cards) => res.json(cards),
       (e) => next(e));
