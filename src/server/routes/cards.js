@@ -24,6 +24,6 @@ router.route('/:cardId')
   .delete(cardCtrl.remove);
 
 // /** Load user when API with userId route parameter is hit */
-// router.param('userId', cardCtrl.load);
+router.param('cardId', cardCtrl.load);
 
 export default router;
