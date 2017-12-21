@@ -23,22 +23,22 @@ function create(req, res, next) {
     }, (e) => next(e));
 }
 
-function update(req, res, next) {
+function update(req, res) {
   const list = req.dbList;
   Object.assign(list, req.body);
   list.save()
-    .then((savedList) => res.sendStatus(204),
-      (e) => res.next(e));
+    .then((savedList) => {
+      res.json(savedList)
+    },
+    (e) => res.next(e));
 }
 
-function list(req, res, next) {
-  const { limit = 50, skip = 0 } = req.query;
-  List.find()
-    .skip(skip)
-    .limit(limit)
-    .exec()
-    .then((lists) => res.json(lists),
-      (e) => next(e));
+function list(req, res) {
+  List.find(function (e, lists) {
+    const options = [{ path: 'cards' }]
+    const promise = List.populate(lists, options);
+    promise.then(updatedLists => res.json(updatedLists), (e) => res.next(e) );
+  })
 }
 
 function remove(req, res, next) {
