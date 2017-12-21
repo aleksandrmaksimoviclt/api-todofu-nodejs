@@ -5,10 +5,9 @@ import express from 'express';
 import http from 'http';
 import mongoose from 'mongoose';
 import morgan from 'morgan';
-
 import routes from './server/routes'
 
-mongoose.Promise = global.Promise;
+mongoose.Promise = require('bluebird');
 
 let app = express();
 
